@@ -1,4 +1,4 @@
-# webcontent-geely
+# vue-admin-template
 
 > A Vue.js project
 

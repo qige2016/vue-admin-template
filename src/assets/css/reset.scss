@@ -1,0 +1,57 @@
+html,
+body,
+p,
+iframe,
+dl,
+dt,
+dd,
+ul,
+ol,
+li,
+pre,
+form,
+button,
+input,
+textarea,
+th,
+td,
+fieldset {
+  margin: 0;
+  padding: 0
+}
+
+ul,
+ol,
+dl {
+  list-style-type: none
+}
+
+html,
+body,
+#app {
+  width: 100%;  // 解决 IE 全屏时白屏
+  height: 100%;
+}
+
+html {
+  font-family: "Microsoft YaHei" sans-serif;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  min-width: 1200px;
+  min-height: 540px;
+}
+
+body {
+  font-size: 0.16rem;
+}
+
+.clearfix {
+  zoom: 1;
+  &:after {
+    clear: both;
+  }
+}
+
+i {
+  font-style: normal;
+}

@@ -1,8 +1,8 @@
 {
-  "name": "vue-admin-template",
-  "version": "1.0.0",
-  "description": "A Vue.js project",
-  "author": "qige2016<286882998@qq.com>",
+  "name": "{{ name }}",
+  "version": "{{ version }}",
+  "description": "{{ description }}",
+  "author": "{{ author }}",
   "private": true,
   "scripts": {
     "dev": "webpack-dev-server --inline --progress --config build/webpack.dev.conf.js",

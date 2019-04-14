@@ -12,7 +12,7 @@ let uuid = 'cms' + guid()
 
 // create an axios instance
 const service = axios.create({
-  baseURL: '/mock/35',
+  baseURL: '/mock',
   timeout: 30000, // request timeout
   headers: {msgId: uuid, from: 'PORTAL', 'Content-Type': 'application/json;charset=UTF-8'}
 })

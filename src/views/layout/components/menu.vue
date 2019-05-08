@@ -37,10 +37,10 @@
           <!-- 没有子菜单 -->
           <el-menu-item
             v-if="item.children.length === 1"
-            :index="`/${item.children[0].path}`"
+            :index="`${item.path}/${item.children[0].path}`"
             :key="item.children[0].path">
-            <i :class="item.children[0].meta.icon"></i>
-            <span slot="title"> {{item.children[0].meta.title}}</span>
+            <i :class="item.meta.icon"></i>
+            <span class="title"> {{item.children[0].meta.title}}</span>
           </el-menu-item>
         </template>
       </template>

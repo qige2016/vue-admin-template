@@ -23,7 +23,11 @@ export const constantRoutes = [
   {
     path: '',
     component: Layout,
-    redirect: 'index',
+    redirect: '/index',
+    meta: {
+      title: '首页',
+      icon: 'iconfont icon-home-index'
+    },
     children: [
       {
         path: 'index',
@@ -58,6 +62,7 @@ function resetRouter () {
 export const asyncRoutes = [
   {
     path: '/permission',
+    redirect: '/permission/superAdmin',
     component: Layout,
     meta: {
       title: '权限测试',

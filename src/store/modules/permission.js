@@ -50,7 +50,13 @@ export default {
   actions: {
     generateRoutes ({ commit }, role) {
       return new Promise(resolve => {
-        const accessedRoutes = filterAsyncRoutes(asyncRoutes, role)
+        let accessedRoutes
+        // 超级管理员具有所有权限，不用过滤
+        if (role === 'SUPER_ADMIN') {
+          accessedRoutes = asyncRoutes
+        } else {
+          accessedRoutes = filterAsyncRoutes(asyncRoutes, role)
+        }
         commit('SET_ROUTES', accessedRoutes)
         resolve(accessedRoutes)
       })

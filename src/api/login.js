@@ -27,7 +27,6 @@ export function modifyPassword (data) {
     data
   })
 }
-// mock
 export function getUserInfo (params) {
   return request({
     url: '/v0/operators/userinfo',

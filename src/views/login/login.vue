@@ -48,9 +48,7 @@ export default {
       this.$refs['loginForm'].validate((valid) => {
         if (valid) {
           this.loginStatus = false
-          const time = localStorage.getItem('LG_TM')
-          const data = { ...this.loginForm, time }
-          this.$store.dispatch('handleLogin', data).then(res => {
+          this.$store.dispatch('handleLogin', this.loginForm).then(res => {
             this.$router.push('/index')
           }).catch(() => {
             this.loginStatus = true

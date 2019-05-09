@@ -27,10 +27,9 @@ export function modifyPassword (data) {
     data
   })
 }
-export function getUserInfo (params) {
+export function getUserInfo () {
   return request({
     url: '/v0/operators/userinfo',
-    method: 'get',
-    params
+    method: 'get'
   })
 }

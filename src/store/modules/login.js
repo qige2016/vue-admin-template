@@ -5,11 +5,11 @@ import router from '@/router'
 export default {
   state: {
     operatorBean: {},
-    operatorToken: getToken()
+    token: getToken()
   },
   mutations: {
-    SET_TOKEN: (state, operatorToken) => {
-      state.operatorToken = operatorToken
+    SET_TOKEN: (state, token) => {
+      state.token = token
     },
     SET_OPERATORBEAN: (state, operatorBean) => {
       state.operatorBean = operatorBean
@@ -17,15 +17,15 @@ export default {
   },
   getters: {
     operatorBean: state => state.operatorBean,
-    operatorToken: state => state.operatorToken
+    token: state => state.token
   },
   actions: {
     // 登录
     handleLogin ({ commit }, data) {
       return new Promise((resolve, reject) => {
         login(data).then(response => {
-          commit('SET_TOKEN', response.operatorToken)
-          setToken(response.operatorToken)
+          commit('SET_TOKEN', response.token)
+          setToken(response.token)
           resolve(response)
         }).catch(error => {
           reject(error)
@@ -56,10 +56,9 @@ export default {
       })
     },
     // 获取用户信息
-    getUserInfo ({ commit, state }) {
+    getUserInfo ({ commit }) {
       return new Promise((resolve, reject) => {
-        const operatorToken = {operatorToken: state.operatorToken}
-        getUserInfo(operatorToken).then(response => {
+        getUserInfo().then(response => {
           /** 存储用户信息 */
           commit('SET_OPERATORBEAN', response.operatorBean)
           resolve(response)

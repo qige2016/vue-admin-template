@@ -21,9 +21,9 @@ const service = axios.create({
 service.interceptors.request.use(
   config => {
     if (getToken()) {
-      config.headers['operatorToken'] = getToken()
+      config.headers['token'] = getToken()
     } else {
-      config.headers['operatorToken'] = ''
+      config.headers['token'] = ''
     }
     // 去除前后空格
     if (config.method === 'get') {

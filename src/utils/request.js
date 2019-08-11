@@ -1,39 +1,72 @@
 import axios from 'axios'
 import { Message } from 'element-ui'
-import { guid, trim } from '@/utils/index'
-import { getToken } from '@/utils/auth'
+import { guid, rebuildObj, legitimacy, isFormData } from '@/utils/index'
+import { getItem } from '@/utils/auth'
 import { getSign, postSign } from '@/utils/sign'
 import store from '@/store'
 import router from '@/router/index'
 
-const isSign = false // 开启关闭sign签名验证
-const securityKey = ''// 后端提供安全码
-let uuid = 'cms' + guid()
+const isSign = true // 开启关闭sign签名验证
+const securityKey = 'U6#bs7$s'// 后端提供安全码
+const uuid = 'cms' + guid()
+
+// 错误提示信息
+const tipText = {
+  400: {
+    90002: '登录超时，请重登',
+    SYS_405: '签名验证未通过'
+  },
+  404: '请求不存在',
+  500: '服务器内部错误',
+  502: '网关错误',
+  504: '网关超时'
+}
+
+const showMessage = (message, type = 'error', showClose = true, duration = 3000) => {
+  Message({ type, showClose, duration, message })
+}
 
 // create an axios instance
 const service = axios.create({
-  baseURL: '/mock',
+  baseURL: '/api',
   timeout: 30000, // request timeout
-  headers: {msgId: uuid, from: 'PORTAL', 'Content-Type': 'application/json;charset=UTF-8'}
+  headers: { msgId: uuid, from: 'PORTAL', 'Content-Type': 'application/json;charset=UTF-8' }
 })
 
 // request interceptor
 service.interceptors.request.use(
   config => {
-    if (getToken()) {
-      config.headers['token'] = getToken()
-    } else {
-      config.headers['token'] = ''
-    }
-    // 去除前后空格
+    // get 方法先判断是否包含 & 字符
     if (config.method === 'get') {
-      config.params = trim(config.params)
-      // loading
-      store.commit('SET_LOADING', true)
+      // 不包含 & 字符
+      if (legitimacy(config.params)) {
+        // 去除前后空格 和 空属性
+        config.params = rebuildObj(config.params)
+        store.commit('SET_LOADING', true)
+      } else {
+        // 包含 & 字符取消请求
+        showMessage('&为非法字符,请重新输入')
+        const CancelToken = axios.CancelToken
+        const source = CancelToken.source()
+        config.cancelToken = source.token
+        // 取消请求
+        source.cancel()
+        return config
+      }
     } else {
-      config.data = trim(config.data)
+      // 去除前后空格 和 空属性
+      config.data = rebuildObj(config.data)
+      // 上传文件
+      if (isFormData(config.data)) {
+        config.headers['Content-Type'] = 'multipart/form-data'
+      }
     }
-    if (isSign) {
+    // token
+    if (getItem('LG_TK')) {
+      config.headers['managerToken'] = getItem('LG_TK')
+    }
+    // 签名
+    if (isSign && !isFormData(config.data)) {
       if (config.method === 'get') {
         let timestamp = new Date().getTime()
         config.params = getSign(timestamp, config.params, securityKey)
@@ -46,7 +79,8 @@ service.interceptors.request.use(
   },
   error => {
     // Do something with request error
-    console.log(error) // for debug
+    // console.log(error) // for debug
+    store.commit('SET_LOADING', false)
     return Promise.reject(error)
   }
 )
@@ -64,34 +98,25 @@ service.interceptors.response.use(
      */
     // loading
     store.commit('SET_LOADING', false)
-    console.log('error：' + error.response.data.errorMsg, error.response.status) // for debug
-    const data = error.response.data
-    const status = error.response.status
+    // console.log('error：' + error.response.data.errorMsg, error.response.status) // for debug
     if (error && error.response) {
-      switch (status) {
-        case 400:
-          // 捕获中心点错误信息不显示
-          if (data.errorCode === '40013') {
-          } else if (data.errorCode === '40002') {
-            Message({ type: 'error', showClose: true, duration: 3000, message: '登录超时，请重登' })
-            router.push('/login')
-          } else if (data.errorCode === 'SYS_405') {
-            Message({ type: 'error', showClose: true, duration: 3000, message: '签名验证未通过' })
-          } else {
-            Message({ type: 'error', showClose: true, duration: 3000, message: data.errorMsg })
-          }
-          break
-        case 404:
-          Message({ type: 'error', showClose: true, duration: 3000, message: '请求不存在' })
-          break
-        case 500:
-          Message({ type: 'error', showClose: true, duration: 3000, message: '服务器内部错误，请刷新' })
-          break
-        case 502:
-          Message({ type: 'error', showClose: true, duration: 3000, message: '网关错误，请刷新' })
-          break
-        default:
-          Message({ type: 'error', showClose: true, duration: 3000, message: data.errorMsg })
+      const data = error.response.data
+      const status = error.response.status + '' // number转为string
+      // 在tipText中有定义
+      if (tipText[status]) {
+        if (status === '400') {
+          // 未在tipText['400']中定义，使用默认tip
+          const msg = tipText['400'][data.errorCode]
+          msg ? showMessage(msg) : showMessage(data.errorMsg)
+          // 如果登录超时，前端退出后转跳登录页重新登录
+          data.errorCode === '90002' && store.dispatch('manager/fedLogOut').then(() => router.push('/login'))
+        } else {
+          // 404、500、502
+          showMessage(tipText[status])
+        }
+      } else {
+        // 未在tipText中定义，使用默认tip
+        showMessage(data.errorMsg)
       }
     }
     return Promise.reject(error)

@@ -1,10 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import store from '@/store'
-import { getToken } from '@/utils/auth'
-import { isEmptyObj } from '@/utils/index'
-/* Layout */
-import Layout from '@/views/layout/layout.vue'
+import Layout from '@/layout/index'
 
 Vue.use(Router)
 
@@ -12,11 +8,12 @@ export const constantRoutes = [
   {
     path: '/login',
     name: 'login',
-    component: () => import('@/views/login/login.vue'),
+    component: () => import('@/views/login/index'),
     hidden: true
   },
   {
     path: '/404',
+    name: '404',
     component: () => import('@/views/errorPage/404.vue'),
     hidden: true
   },
@@ -25,44 +22,33 @@ export const constantRoutes = [
     component: Layout,
     redirect: '/index',
     meta: {
-      title: '首页',
-      icon: 'iconfont icon-home-index'
+      title: '主页',
+      icon: 'iconfont icon-home'
     },
     children: [
       {
-        path: 'index',
+        path: '/index',
         name: 'index',
-        component: () => import('@/views/home/index.vue'),
+        component: () => import('@/views/home/index'),
         meta: {
-          title: '首页',
-          icon: 'iconfont icon-home-index'
+          title: '主页',
+          icon: 'iconfont icon-home'
         }
       }
     ]
   }
 ]
 
-const createRouter = () => new Router({
-  routes: constantRoutes
-})
-
-const router = createRouter()
-
-function resetRouter () {
-  const newRouter = createRouter()
-  router.matcher = newRouter.matcher // the relevant part
-}
-
 /**
  * meta: {
  *  role: 可访问该页面的权限数组，当前路由设置的权限会影响子路由
  * }
  */
-/* 权限路由：roles: SUPER_ADMIN: 超级管理员，ADMIN: 管理员 */
+/* 权限路由：roles: SUPER: 超级管理员，SUPER_MGR: 管理员 */
 export const asyncRoutes = [
   {
     path: '/permission',
-    redirect: '/permission/superAdmin',
+    redirect: '/permission/super',
     component: Layout,
     meta: {
       title: '权限测试',
@@ -70,30 +56,30 @@ export const asyncRoutes = [
     },
     children: [
       {
-        path: 'superAdmin',
-        name: 'superAdmin',
-        component: () => import('@/views/permission/superAdmin.vue'),
+        path: '/permission/super',
+        name: 'super',
+        component: () => import('@/views/permission/super'),
         meta: {
           title: '超级管理员权限',
-          roles: ['SUPER_ADMIN']
+          roles: ['SUPER']
         }
       },
       {
-        path: 'admin',
+        path: '/permission/admin',
         name: 'admin',
-        component: () => import('@/views/permission/admin.vue'),
+        component: () => import('@/views/permission/admin'),
         meta: {
           title: '管理员权限',
-          roles: ['ADMIN']
+          roles: ['SUPER_MGR']
         }
       },
       {
-        path: 'all',
+        path: '/permission/all',
         name: 'all',
-        component: () => import('@/views/permission/all.vue'),
+        component: () => import('@/views/permission/all'),
         meta: {
           title: '所有权限'
-          // roles: ['SUPER_ADMIN', 'ADMIN'] // if do not set roles, means: this page does not require permission
+          // roles: ['SUPER', 'SUPER_MGR'] // if do not set roles, means: this page does not require permission
         }
       }
     ]
@@ -101,36 +87,16 @@ export const asyncRoutes = [
   { path: '*', redirect: '/404', hidden: true }
 ]
 
-router.beforeEach((to, from, next) => {
-  if (!getToken() && to.name !== 'login') {
-    // 未登录且要跳转的页面不是登录页
-    next({ name: 'login' }) // 跳转登录页
-  } else if (!getToken() && to.name === 'login') {
-    // 未登陆且要跳转的页面是登录页
-    next() // 跳转
-  } else if (getToken() && to.name === 'login') {
-    // 已登录且要跳转的页面是登录页
-    next({ name: 'index' }) // 跳转首页
-  } else {
-    // 判断当前用户是否已经拉取完用户信
-    if (isEmptyObj(store.getters.operatorBean)) {
-      store.dispatch('getUserInfo').then(response => {
-        /** TODO */
-        store.dispatch('generateRoutes', response.operatorBean.roleType).then(accessedRoutes => {
-          resetRouter() // 重置router避免name重名
-          router.addRoutes(accessedRoutes) // 根据用户角色，动态添加权限路由
-          next({ ...to, replace: true }) // hack方法 确保addRoutes已完成 ,set the replace: true so the navigation will not leave a history record
-        })
-      }).catch(err => {
-        store.dispatch('fedLogOut').then(() => {
-          console.log(err)
-          next({ name: 'login' })
-        })
-      })
-    } else {
-      next()
-    }
-  }
+const createRouter = () => new Router({
+  mode: 'history',
+  routes: constantRoutes
 })
+
+const router = createRouter()
+
+export function resetRouter () {
+  const newRouter = createRouter()
+  router.matcher = newRouter.matcher // the relevant part
+}
 
 export default router

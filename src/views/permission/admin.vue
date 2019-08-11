@@ -2,8 +2,9 @@
   <div>管理员才能访问</div>
 </template>
 <script>
+
 export default {
-  name: 'admin'
+  name: 'Admin'
 }
 </script>
 <style lang="scss" scoped>

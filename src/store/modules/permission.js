@@ -33,6 +33,7 @@ export function filterAsyncRoutes (routes, role) {
 }
 
 export default {
+  namespaced: true,
   state: {
     routes: [],
     addRoutes: []
@@ -43,14 +44,16 @@ export default {
       state.routes = constantRoutes.concat(routes)
     }
   },
-  getters: {
-    addRoutes: state => state.addRoutes,
-    routes: state => state.routes
-  },
   actions: {
     generateRoutes ({ commit }, role) {
       return new Promise(resolve => {
-        const accessedRoutes = filterAsyncRoutes(asyncRoutes, role)
+        let accessedRoutes
+        // 超级管理员具有所有权限，不用过滤
+        if (role === 'SUPER') {
+          accessedRoutes = asyncRoutes
+        } else {
+          accessedRoutes = filterAsyncRoutes(asyncRoutes, role)
+        }
         commit('SET_ROUTES', accessedRoutes)
         resolve(accessedRoutes)
       })

@@ -1,0 +1,33 @@
+@import "~@/styles/variables.scss";
+.menu-wrapper {
+  background-color: $menuBg;
+  // 如果没有此样式的话  折叠有子级菜单的父菜单文字是不会隐藏的
+  .el-menu--collapse .el-menu-item span,
+    .el-menu--collapse .el-submenu .el-submenu__title span,
+      .el-menu--collapse .el-submenu__icon-arrow{
+    height: 0;
+    width: 0;
+    overflow: hidden;
+    visibility: hidden;
+    display: inline-block;
+    }
+  .el-menu-vertical-demo:not(.el-menu--collapse) {
+    width: $menuWidth;
+    .el-menu-item:not(.is-active):hover,.el-submenu__title:hover{
+      color: $menuActiveText !important;
+      background-color: $menuBg;
+      .iconfont{
+        color: $menuActiveText;
+      }
+    }
+  }
+}
+.breadcrumb-wrapper {
+  font-size: 12px;
+  padding: 13px 32px;
+  background-color: $breadcrumbBg;
+  .el-breadcrumb__separator,
+  .el-breadcrumb__inner {
+    color: $breadcrumbText;
+  }
+}

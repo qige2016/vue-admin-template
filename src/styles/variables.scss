@@ -1,0 +1,30 @@
+// base color
+$blue:#324157;
+$light-blue:#3A71A8;
+$red:#C03639;
+$pink: #E65D6E;
+$green: #30B08F;
+$tiffany: #4AB7BD;
+$yellow:#FEC171;
+$panGreen: #30B08F;
+
+$menuActiveText:#1D8DFF;
+
+$menuBg:#1B273C;
+$menuHover:#263445;
+
+$menuWidth: 210px;
+
+$breadcrumbBg: #D1D7DF;
+$breadcrumbText: #4A4A4A;
+
+// the :export directive is the magic sauce for webpack
+// https://www.bluematador.com/blog/how-to-share-variables-between-js-and-sass
+:export {
+  menuActiveText: $menuActiveText;
+  menuBg: $menuBg;
+  menuHover: $menuHover;
+  menuWidth: $menuWidth;
+  breadcrumbBg: $breadcrumbBg;
+  breadcrumbText: $breadcrumbText
+}
